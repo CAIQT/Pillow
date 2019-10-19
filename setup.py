@@ -338,6 +338,7 @@ class pil_build_ext(build_ext):
             # reproduce the same behavior as before, that is, auto-detect the
             # number of jobs.
             self.parallel = mp_compile.MAX_PROCS
+            self.parallel = False
         for x in self.feature:
             if getattr(self, "disable_%s" % x):
                 setattr(self.feature, x, False)
@@ -532,7 +533,8 @@ class pil_build_ext(build_ext):
                     if version > best_version:
                         best_version = version
                         best_path = os.path.join(program_files, name)
-
+            if not best_path:
+                best_path = r"E:\Toolkits\GITHUB\vcpkg\installed\x64-windows"
             if best_path:
                 _dbg("Adding %s to search list", best_path)
                 _add_directory(library_dirs, os.path.join(best_path, "lib"))
@@ -725,13 +727,13 @@ class pil_build_ext(build_ext):
         else:
             defs.append(("PILLOW_VERSION", '"%s"' % PILLOW_VERSION))
 
-        exts = [(Extension("PIL._imaging", files, libraries=libs, define_macros=defs))]
+        exts = [(Extension("PIL._imaging", files, libraries=libs, define_macros=defs, library_dirs = self.library_dirs,))]
 
         #
         # additional libraries
 
         if feature.freetype:
-            libs = ["freetype"]
+            libs = ["freetype", "raqm", "harfbuzz", "fribidi"]
             defs = []
             exts.append(
                 Extension(
@@ -739,6 +741,7 @@ class pil_build_ext(build_ext):
                     ["src/_imagingft.c"],
                     libraries=libs,
                     define_macros=defs,
+                    library_dirs=self.library_dirs,
                 )
             )
 
@@ -751,6 +754,7 @@ class pil_build_ext(build_ext):
                     "PIL._imagingcms",
                     ["src/_imagingcms.c"],
                     libraries=[feature.lcms] + extra,
+                    library_dirs=self.library_dirs,
                 )
             )
 
@@ -765,7 +769,8 @@ class pil_build_ext(build_ext):
 
             exts.append(
                 Extension(
-                    "PIL._webp", ["src/_webp.c"], libraries=libs, define_macros=defs
+                    "PIL._webp", ["src/_webp.c"], libraries=libs, define_macros=defs,
+                    library_dirs=self.library_dirs,
                 )
             )
 
@@ -775,15 +780,15 @@ class pil_build_ext(build_ext):
                 "PIL._imagingtk",
                 ["src/_imagingtk.c", "src/Tk/tkImaging.c"],
                 include_dirs=["src/Tk"],
+                library_dirs = self.library_dirs,
                 libraries=tk_libs,
             )
         )
 
-        exts.append(Extension("PIL._imagingmath", ["src/_imagingmath.c"]))
-        exts.append(Extension("PIL._imagingmorph", ["src/_imagingmorph.c"]))
+        exts.append(Extension("PIL._imagingmath", ["src/_imagingmath.c"], library_dirs = self.library_dirs,))
+        exts.append(Extension("PIL._imagingmorph", ["src/_imagingmorph.c"], library_dirs = self.library_dirs,))
 
         self.extensions[:] = exts
-
         build_ext.build_extensions(self)
 
         #
@@ -877,7 +882,7 @@ try:
         ],
         python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
         cmdclass={"build_ext": pil_build_ext},
-        ext_modules=[Extension("PIL._imaging", ["_imaging.c"])],
+        ext_modules=[Extension("PIL._imaging", ["_imaging.c"], library_dirs=r'C:/python37/libs')],
         include_package_data=True,
         setup_requires=pytest_runner,
         tests_require=["pytest"],

@@ -173,6 +173,11 @@ raqm_position_to_index (raqm_t *rq,
                         int x,
                         int y,
                         size_t *index);
+                        
+bool
+raqm_version_atleast (unsigned int major,
+                      unsigned int minor,
+                      unsigned int micro);
 
 #ifdef __cplusplus
 }

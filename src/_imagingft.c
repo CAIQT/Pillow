@@ -161,7 +161,7 @@ setraqm(void)
         p_raqm.raqm = dlopen("libraqm.dylib", RTLD_LAZY);
     }
 #else
-    p_raqm.raqm = LoadLibrary("libraqm");
+    p_raqm.raqm = 1; //LoadLibrary("libraqm");
 #endif
 
     if (!p_raqm.raqm) {
@@ -202,23 +202,19 @@ setraqm(void)
         return 2;
     }
 #else
-    p_raqm.version_atleast = (t_raqm_version_atleast)GetProcAddress(p_raqm.raqm, "raqm_version_atleast");
-    p_raqm.create = (t_raqm_create)GetProcAddress(p_raqm.raqm, "raqm_create");
-    p_raqm.set_text = (t_raqm_set_text)GetProcAddress(p_raqm.raqm, "raqm_set_text");
-    p_raqm.set_text_utf8 = (t_raqm_set_text_utf8)GetProcAddress(p_raqm.raqm, "raqm_set_text_utf8");
-    p_raqm.set_par_direction = (t_raqm_set_par_direction)GetProcAddress(p_raqm.raqm, "raqm_set_par_direction");
-    p_raqm.set_language = (t_raqm_set_language)GetProcAddress(p_raqm.raqm, "raqm_set_language");
-    p_raqm.add_font_feature = (t_raqm_add_font_feature)GetProcAddress(p_raqm.raqm, "raqm_add_font_feature");
-    p_raqm.set_freetype_face = (t_raqm_set_freetype_face)GetProcAddress(p_raqm.raqm, "raqm_set_freetype_face");
-    p_raqm.layout = (t_raqm_layout)GetProcAddress(p_raqm.raqm, "raqm_layout");
-    p_raqm.destroy = (t_raqm_destroy)GetProcAddress(p_raqm.raqm, "raqm_destroy");
-    if(GetProcAddress(p_raqm.raqm, "raqm_index_to_position")) {
-        p_raqm.get_glyphs = (t_raqm_get_glyphs)GetProcAddress(p_raqm.raqm, "raqm_get_glyphs");
-        p_raqm.version = 2;
-    } else {
-        p_raqm.version = 1;
-        p_raqm.get_glyphs_01 = (t_raqm_get_glyphs_01)GetProcAddress(p_raqm.raqm, "raqm_get_glyphs");
-    }
+    p_raqm.version_atleast = (t_raqm_version_atleast)&raqm_version_atleast;
+    p_raqm.create = (t_raqm_create)&raqm_create;
+    p_raqm.set_text = (t_raqm_set_text)&raqm_set_text;
+    p_raqm.set_text_utf8 = (t_raqm_set_text_utf8)&raqm_set_text_utf8;
+    p_raqm.set_par_direction = (t_raqm_set_par_direction)&raqm_set_par_direction;
+    p_raqm.set_language = (t_raqm_set_language)&raqm_set_language;
+    p_raqm.add_font_feature = (t_raqm_add_font_feature)&raqm_add_font_feature;
+    p_raqm.set_freetype_face = (t_raqm_set_freetype_face)&raqm_set_freetype_face;
+    p_raqm.layout = (t_raqm_layout)&raqm_layout;
+    p_raqm.destroy = (t_raqm_destroy)&raqm_destroy;
+    p_raqm.get_glyphs = (t_raqm_get_glyphs)&raqm_get_glyphs;
+    p_raqm.version = 2;
+    
     if (!(p_raqm.create &&
           p_raqm.set_text &&
           p_raqm.set_text_utf8 &&
